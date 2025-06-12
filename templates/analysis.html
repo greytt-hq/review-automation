@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sentiment Analysis</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        background-color: #f2f2f2;
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+      }
+      p.info {
+        color: #555;
+        background: #eef;
+        padding: 10px;
+        border-radius: 5px;
+        display: inline-block;
+      }
+      button {
+        padding: 12px 25px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      #download-link {
+        margin-top: 30px;
+        display: none;
+      }
+      #terminal-animation {
+        width: 80%;
+        margin: 20px auto;
+        background: black;
+        color: #0f0;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 14px;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: left;
+        height: 250px;
+        overflow-y: auto;
+        display: none;
+        box-shadow: 0 0 10px #0f0;
+        white-space: pre-wrap;
+        line-height: 1.4;
+        animation: flicker 0.2s infinite alternate;
+      }
+      @keyframes flicker {
+        0% { opacity: 0.9; }
+        100% { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Analysis Page for {{ city.replace("_", " ").title() }}</h1>
+    <p class="info">After Complete the Scraping if you want to sentiment Analysis click the start sentiment analysis button to start the process</p>
+
+    <form id="analysisForm" method="POST">
+      <button type="submit">Start Sentiment Analysis</button>
+    </form>
+
+    <div id="terminal-animation">
+      <span id="terminal-output"></span>
+    </div>
+
+    <div id="download-link">
+      <h3>Analysis Completed!</h3>
+      <a id="downloadBtn" href="" download>
+        <button>Download Result CSV</button>
+      </a>
+    </div>
+
+    <script>
+      const form = document.getElementById("analysisForm");
+      const downloadLink = document.getElementById("download-link");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const terminal = document.getElementById("terminal-animation");
+      const terminalOutput = document.getElementById("terminal-output");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        
+        form.style.display = "none";
+        terminal.style.display = "block";
+        terminalOutput.textContent = "Initializing Sentiment Analysis...\n";
+
+        let steps = [
+          "Loading scraped reviews...",
+          "Loading BERT sentiment model (this may take a moment)...",
+          "Preprocessing text...",
+          "Running analysis batch by batch...",
+          "Extracting keyword tags...",
+          "Compiling results...",
+          "Saving final CSV output..."
+        ];
+        let lineIndex = 0;
+        const terminalInterval = setInterval(() => {
+          if (lineIndex < steps.length) {
+            terminalOutput.textContent += `[+] ${steps[lineIndex++]}\n`;
+            terminal.scrollTop = terminal.scrollHeight;
+          }
+        }, 1500);
+
+        fetch(`/start-analysis/{{ city }}`, {
+          method: "POST"
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(html => {
+          clearInterval(terminalInterval);
+          terminalOutput.textContent += "\n✅ Sentiment Analysis Complete!";
+          terminal.scrollTop = terminal.scrollHeight;
+          
+          // The response is the content of download.html, we need to extract the link
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const downloadHref = doc.querySelector('a.btn').getAttribute('href');
+
+          downloadBtn.href = downloadHref;
+          downloadLink.style.display = "block";
+        })
+        .catch(error => {
+          clearInterval(terminalInterval);
+          terminalOutput.textContent += `\n❌ Error occurred during analysis: ${error.message}.\nPlease check the terminal for more details.`;
+          terminal.style.color = "#f00"; // Make text red on error
+        });
+      });
+    </script>
+  </body>
+</html>

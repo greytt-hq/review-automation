@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agoda Hotel Review Scraper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            text-align: center;
+            color: #fff;
+        }
+
+        form, #loading {
+            background-color: rgba(0, 0, 0, 0.6); /* dark transparent background */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        input, select, button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        input, select {
+            background-color: #fff;
+            color: #000;
+        }
+
+        button {
+            background-color: #55f062;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #01490b;
+            color: #fff;
+        }
+
+        #loading {
+            display: none;
+            font-weight: bold;
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .date-range {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .date-range input {
+            width: 150px;
+        }
+
+        .date-range label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Agoda Hotel Review Scraper</h1>
+    <form id="scrapeForm" action="/start-scraping" method="POST" onsubmit="showLoader()">
+        <input type="text" name="city" placeholder="Enter city name" required>
+        <select name="star_rating" required>
+            <option value="" disabled selected>Select Star Rating</option>
+            <option value="0">All Hotels</option>
+            <option value="5">5 Star</option>
+            <option value="4">4 Star</option>
+            <option value="3">3 Star</option>
+            <option value="2">2 Star</option>
+            <option value="1">1 Star</option>
+        </select>
+        
+        <div class="date-range">
+            <label for="start_date">From :</label>
+            <input type="date" id="start_date" name="start_date">
+            <label for="end_date">To :</label>
+            <input type="date" id="end_date" name="end_date">
+        </div>
+        
+        <button type="submit">Start Scraping</button>
+    </form>
+
+    <div id="loading">
+        <div class="loader"></div>
+        <p> 🚀The scraper will run in the background. You will be redirected to the next page immediately.</p>
+    </div>
+
+    <script>
+        function showLoader() {
+            document.getElementById('scrapeForm').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
